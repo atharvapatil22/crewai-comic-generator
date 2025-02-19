@@ -1,0 +1,29 @@
+research_task:
+  description: >
+    Conduct a thorough research about {topic}
+    Make sure you find any interesting and relevant information given
+    the current year is {current_year}.
+  expected_output: >
+    A list with 10 bullet points of the most relevant information about {topic}
+  agent: researcher
+
+reporting_task:
+  description: >
+    Review the context you got and expand each topic into a full section for a report.
+    Make sure the report is detailed and contains any and all relevant information.
+  expected_output: >
+    A fully fledged report with the main topics, each with a full section of information.
+    Formatted as markdown without '```'
+  agent: reporting_analyst
+
+step_id_task:
+  description: >
+    Look at the input given to you. INPUT TEXT: {input_text}
+     
+    The input should be describing a series of steps or instructions which are part of a broader process or task. From this input text, you have to mark different sections. Each section should correspond to a step in the overall process. Use the following criteria for sectional splitting: (1)-Action Boundaries (Each distinct physical action or operation should be a separate section, When the primary object being manipulated changes, When a new tool or ingredient is introduced, When there's a shift in location or workspace) and (2)-State Changes (Points where the object/material undergoes a significant transformation, When a sub-component is completed, Natural pause points where verification/checking is needed)
+  expected_output: >
+    __step_1__ [...]
+    __step_2__ [...]
+    ...
+    __step_n__ [...]
+  agent: agent_one
