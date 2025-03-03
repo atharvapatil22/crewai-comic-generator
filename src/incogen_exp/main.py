@@ -4,7 +4,7 @@ import warnings
 
 from datetime import datetime
 
-from incogen_exp.crew import IncogenExp
+from incogen_exp.crew import StepsBreakCrew,ArtistCrew
 
 warnings.filterwarnings("ignore", category=SyntaxWarning, module="pysbd")
 
@@ -13,13 +13,7 @@ warnings.filterwarnings("ignore", category=SyntaxWarning, module="pysbd")
 # Replace with inputs you want to test with, it will automatically
 # interpolate any tasks and agents information
 
-def run():
-    """
-    Run the crew.
-    """
-    inputs = {
-        'topic': 'AI LLMs',
-        'input_text': '''How to Prepare a Butterflied Spatchcocked Chicken
+user_input = '''How to Prepare a Butterflied Spatchcocked Chicken
 
     Remove backbone: To prepare chicken turn the chicken breast side down on a cutting board. Cut spine from chicken using heavy duty kitchen shears, trim down both sides of the backbone from end to end to it remove completely (reserve in fridge for chicken stock if desired).
 
@@ -63,48 +57,79 @@ How to Store
     Rewarm individual servings in the microwave on 50% power until warmed through, or warm in a skillet with a little oil.
     It is not recommended to freeze this recipe as the potatoes will become mushy. You can however freeze leftover roasted spatchcock chicken for up to 3 months.
     I recommend using leftover chicken carcass and the backbone for homemade chicken stock.
-''',
-        'current_year': str(datetime.now().year)
-    }
+'''
+
+def run():
+    """
+    Run the crew.
+    """
+    # inputs = {
+    #     'topic': 'AI LLMs',
+    #     'input_text': ,
+    #     'current_year': str(datetime.now().year)
+    # }
     
     try:
-        IncogenExp().crew().kickoff(inputs=inputs)
+        # IncogenExp().crew().kickoff(inputs=inputs)
+        # Creating hypothesis or generating questions using QuestCrew
+        inputs = {
+            'input_text': user_input,
+        }
+
+        steps_list = StepsBreakCrew().crew().kickoff(inputs=inputs)
+
+        if steps_list is not None:        
+            print(f"Raw result from steps breakdown: {steps_list.raw}")
+
+        # slist = steps_list.pydantic
+        # # for scene in slist.scenes:
+        # #     print(f"Scene: {scene.narration}") 
+
+        # # scene_input = [{ "story_summary": story_summary,
+        # #     'scene_description': scene.narration} for i, scene in enumerate(slist.scenes)]
+
+
+
+        # # Run the agent
+        # result_images = ArtistCrew().crew().kickoff_for_each(inputs = slist)
+
+        # print("result_images : {result_images.raw}")
     except Exception as e:
         raise Exception(f"An error occurred while running the crew: {e}")
 
 
-def train():
-    """
-    Train the crew for a given number of iterations.
-    """
-    inputs = {
-        "topic": "AI LLMs"
-    }
-    try:
-        IncogenExp().crew().train(n_iterations=int(sys.argv[1]), filename=sys.argv[2], inputs=inputs)
+# def train():
+#     """
+#     Train the crew for a given number of iterations.
+#     """
+#     inputs = {
+#         "topic": "AI LLMs"
+#     }
+#     try:
+#         IncogenExp().crew().train(n_iterations=int(sys.argv[1]), filename=sys.argv[2], inputs=inputs)
 
-    except Exception as e:
-        raise Exception(f"An error occurred while training the crew: {e}")
+#     except Exception as e:
+#         raise Exception(f"An error occurred while training the crew: {e}")
 
-def replay():
-    """
-    Replay the crew execution from a specific task.
-    """
-    try:
-        IncogenExp().crew().replay(task_id=sys.argv[1])
+# def replay():
+#     """
+#     Replay the crew execution from a specific task.
+#     """
+#     try:
+#         IncogenExp().crew().replay(task_id=sys.argv[1])
 
-    except Exception as e:
-        raise Exception(f"An error occurred while replaying the crew: {e}")
+#     except Exception as e:
+#         raise Exception(f"An error occurred while replaying the crew: {e}")
 
-def test():
-    """
-    Test the crew execution and returns the results.
-    """
-    inputs = {
-        "topic": "AI LLMs"
-    }
-    try:
-        IncogenExp().crew().test(n_iterations=int(sys.argv[1]), openai_model_name=sys.argv[2], inputs=inputs)
+# def test():
+#     """
+#     Test the crew execution and returns the results.
+#     """
+#     inputs = {
+#         "topic": "AI LLMs"
+#     }
+#     try:
+#         IncogenExp().crew().test(n_iterations=int(sys.argv[1]), openai_model_name=sys.argv[2], inputs=inputs)
 
-    except Exception as e:
-        raise Exception(f"An error occurred while testing the crew: {e}")
+#     except Exception as e:
+#         raise Exception(f"An error occurred while testing the crew: {e}")
