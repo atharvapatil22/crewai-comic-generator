@@ -4,7 +4,7 @@ import warnings
 
 from datetime import datetime
 
-from incogen_exp.crew import StepsBreakCrew,ArtistCrew
+from incogen_exp.crew import StoryCrew,ArtistCrew
 
 warnings.filterwarnings("ignore", category=SyntaxWarning, module="pysbd")
 
@@ -13,123 +13,29 @@ warnings.filterwarnings("ignore", category=SyntaxWarning, module="pysbd")
 # Replace with inputs you want to test with, it will automatically
 # interpolate any tasks and agents information
 
-user_input = '''How to Prepare a Butterflied Spatchcocked Chicken
-
-    Remove backbone: To prepare chicken turn the chicken breast side down on a cutting board. Cut spine from chicken using heavy duty kitchen shears, trim down both sides of the backbone from end to end to it remove completely (reserve in fridge for chicken stock if desired).
-
-Whole chicken with spine cut out.
-
-    Butterfly the chicken open.
-    Optional tip: Optionally for ease in flattening chicken in the next step you can make a small cut down the upper center of it (the sternum) before turning the chicken. Trim excess visible fat from the chicken, season inside the chicken with salt and pepper.
-
-Butterflied whole chicken.
-
-Turn and flatten chicken: Turn chicken to opposite side, use the heel of your hand forcefully press between the center of the chicken breasts to flatten the chicken (if needed use a second hand over the first for extra added pressure).Breaking bone for spatchcock chicken.
-Make herb butter: In a mixing bowl using a spatula stir together butter, 1 1/2 tsp each garlic, thyme and rosemary. Season with salt and pepper to taste (I use about 3/4 tsp salt and 1/4 tsp pepper).
-
-Rub butter under chicken skin: Using the back of a spatula or your finger separate the skin from the chicken to create a pocket for the butter (start at the neck and run down near the opposite end but not all the way through or butter will melt out). Also do this for the thighs.
-
-Dab over the chicken skin to dry with paper towels.
-
-Butter garlic herb mixture for roast chicken.
-How to Cook Spatchcock Chicken on a Sheet Pan
-
-Prepare oven and baking pan: Preheat oven to 425 degrees. Spray an 18 by 13 inch baking sheet with non-stick cooking spray or line with parchment paper.
-
-Place spatchcock chicken on pan, season: Transfer the chicken to prepared baking sheet breast side up, turn and tuck the wings tips under the chicken. Season the chicken evenly with paprika, salt and pepper to taste.
-
-Season vegetables, spread around chicken: In a large mixing bowl toss together potatoes, carrots, remaining garlic, rosemary and thyme, salt and pepper to taste and olive oil.
-
-Spread vegetables around chicken (you can use space under neck area and under wingtips if needed).
-
-Spatchcock chicken and vegetables on a baking sheet shown before roasting.
-
-How long to bake: Roast in oven until chicken breasts are 160 to 165 in center on an instant read food thermometer (thighs should be at least 165 degrees, but it’s okay if thighs are hotter. The chicken breasts you don’t want past that temperature or they’ll dry out), about 50 to 60 minutes.
-
-Vegetable tip: If needed you can toss the vegetables around 30 minutes if they are beginning to brown.
-
-Let rest and slice: Tent with foil and let chicken rest 10 minutes before carving (for juicier chicken). Garnish everything with parsley and serve with lemon wedges for spritzing over chicken and vegetables.
-
-Spatchcock chicken and veggies on baking sheet shown after roasting.
-How to Store
-
-    Any leftover chicken and vegetables can be stored in the fridge for up to 3 days.
-    Rewarm individual servings in the microwave on 50% power until warmed through, or warm in a skillet with a little oil.
-    It is not recommended to freeze this recipe as the potatoes will become mushy. You can however freeze leftover roasted spatchcock chicken for up to 3 months.
-    I recommend using leftover chicken carcass and the backbone for homemade chicken stock.
-'''
-
 def run():
-    """
-    Run the crew.
-    """
-    # inputs = {
-    #     'topic': 'AI LLMs',
-    #     'input_text': ,
-    #     'current_year': str(datetime.now().year)
-    # }
-    
-    try:
-        # IncogenExp().crew().kickoff(inputs=inputs)
-        # Creating hypothesis or generating questions using QuestCrew
-        inputs = {
-            'input_text': user_input,
-        }
+    # Creating hypothesis or generating questions using QuestCrew
+    inputs = {
+        'number_of_scenes': int(4),
+        'story_text': "Once upon a time, there lived a mighty lion named Bhasuraka, who terrorized the jungle. The animals, tired of his tyranny, decided to send him a prey every day. One day, it was a clever rabbit’s turn, and he devised a plan to rid the jungle of the lion. He led Bhasuraka to a deep well, convincing him that another lion lived there. Bhasuraka, seeing his reflection in the water, roared in anger and jumped into the well, never to return.",
+    }
 
-        steps_list = StepsBreakCrew().crew().kickoff(inputs=inputs)
-
-        if steps_list is not None:        
-            print(f"Raw result from steps breakdown: {steps_list.raw}")
-
-        # slist = steps_list.pydantic
-        # # for scene in slist.scenes:
-        # #     print(f"Scene: {scene.narration}") 
-
-        # # scene_input = [{ "story_summary": story_summary,
-        # #     'scene_description': scene.narration} for i, scene in enumerate(slist.scenes)]
+    scenes_list = StoryCrew().crew().kickoff(inputs=inputs)
 
 
+    if scenes_list is not None:        
+        print(f"Raw result from script writing: {scenes_list.raw}")
 
-        # # Run the agent
-        # result_images = ArtistCrew().crew().kickoff_for_each(inputs = slist)
+    slist = scenes_list.pydantic
+    story_summary = slist.summary
+    for scene in slist.scenes:
+        print(f"Scene: {scene.narration}") 
 
-        # print("result_images : {result_images.raw}")
-    except Exception as e:
-        raise Exception(f"An error occurred while running the crew: {e}")
+    scene_input = [{ "story_summary": story_summary,
+        'scene_description': scene.narration} for i, scene in enumerate(slist.scenes)]
 
 
-# def train():
-#     """
-#     Train the crew for a given number of iterations.
-#     """
-#     inputs = {
-#         "topic": "AI LLMs"
-#     }
-#     try:
-#         IncogenExp().crew().train(n_iterations=int(sys.argv[1]), filename=sys.argv[2], inputs=inputs)
+    # Run the agent
+    result_images = ArtistCrew().crew().kickoff_for_each(inputs = scene_input)
 
-#     except Exception as e:
-#         raise Exception(f"An error occurred while training the crew: {e}")
-
-# def replay():
-#     """
-#     Replay the crew execution from a specific task.
-#     """
-#     try:
-#         IncogenExp().crew().replay(task_id=sys.argv[1])
-
-#     except Exception as e:
-#         raise Exception(f"An error occurred while replaying the crew: {e}")
-
-# def test():
-#     """
-#     Test the crew execution and returns the results.
-#     """
-#     inputs = {
-#         "topic": "AI LLMs"
-#     }
-#     try:
-#         IncogenExp().crew().test(n_iterations=int(sys.argv[1]), openai_model_name=sys.argv[2], inputs=inputs)
-
-#     except Exception as e:
-#         raise Exception(f"An error occurred while testing the crew: {e}")
+    print("result_images : {result_images.raw}")

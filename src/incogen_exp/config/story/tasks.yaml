@@ -1,0 +1,21 @@
+# Task
+
+scriptwriting:
+  description: >
+    You are given a short story for kids on learning important lessons on life. The story need to be converted to 
+    a picture book for fun reading and engagement for the kids. You are responsible for breaking down story into 
+    {number_of_scenes} distinct scenes, each focused on a specific event or moment in the story. Each scene will be 
+    converted to an image in the picture. You must generate the following information in the pydantic schema specified:
+
+    - An apt name for the story 
+    - A short summary of the story 
+    - A short exposition of the story providing the reader with important background information.
+    - Detailed narration of each scene in the story at least in one or two sentences.
+    - The final lesson learnt from the story.
+
+    <short_story>    
+      {story_text}
+    </short_story>
+  expected_output: >
+    The output must follow the pydantic schema strictly. There will be penalty if not followed.
+  agent: scriptwriter
