@@ -94,7 +94,7 @@ class ArtistCrew():
   return Task(
    config=self.tasks_config['illustration'],
    
-   output_pydantic = SceneImage,      
+#    output_pydantic = SceneImage,      
    output_file='report.md'
   )
 

@@ -8,7 +8,7 @@ illustration:
 
     Below is a description of a specific scence from a story. And a short summary of the story is also given below. 
 
-    Generate a prompt which can be used by a text to image model to generate an image for the scene. Send the prompt to the 
+    Generate a plain-string prompt(not a dictionary) which can be used by a text to image model to generate an image for the scene. Send the prompt to the 
     tool provided to generated the image that depicts characters and backgrounds appropriately as per the requirements of the scenes. 
     And the characters should be in cartoon style. The prompts should be in less than 40 words.
 
@@ -20,5 +20,5 @@ illustration:
       {scene_description}
     </scene_description>
   expected_output: >
-    The output must follow the pydantic schema strictly. There will be penalty if not followed.
+    A url to the generated image
   agent: visualartist
