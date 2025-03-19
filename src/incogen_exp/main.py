@@ -18,29 +18,9 @@ def run():
     Run the crew.
     """
     data = {
-        "input_text": '''For the Pasta:
-
-    12 oz (340g) pasta (penne or fettuccine works well)
-    2 tbsp olive oil or butter
-
-For the Protein (Optional):
-
-    1 lb (450g) chicken breast or shrimp, sliced
-    1 tsp Cajun seasoning (for seasoning the protein)
-
-For the Sauce:
-
-    2 tbsp butter
-    3 cloves garlic, minced
-    1 bell pepper (red, yellow, or green), sliced
-    ½ onion, sliced
-    1 cup heavy cream
-    1 cup chicken broth (or vegetable broth)
-    ½ cup Parmesan cheese, grated
-    1 tbsp Cajun seasoning (adjust to taste)
-    ½ tsp smoked paprika (optional for extra smokiness)
-    Salt and black pepper to taste
-    ½ tsp red pepper flakes (optional for extra spice)
+        "input_text": '''250g pasta (spaghetti or fettuccine)
+2 boneless, skinless chicken breasts (sliced)
+3 cloves garlic (minced)
 ''',
         "current_year": str(datetime.now().year)
     }
