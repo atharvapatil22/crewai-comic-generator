@@ -27,7 +27,7 @@ def add_image_details(image_url,name,quantity):
   # Quantity Text
   text2 = capitalize_first_letter(quantity)
   
-  bg_color = (135, 206, 235)  # Sky Blue color
+  bg_color = (135, 206, 235)  # Sky Blue 
   border_color = (0, 0, 0)  # Black border color
 
   # Load font 

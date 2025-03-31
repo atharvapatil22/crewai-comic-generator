@@ -7,79 +7,7 @@ from crewai_tools import DallETool
 import json
 from openai import OpenAI
 from incogen_exp.helpers import add_image_details
-
-# If you want to run a snippet of code before or after the crew starts, 
-# you can use the @before_kickoff and @after_kickoff decorators
-# https://docs.crewai.com/concepts/crews#example-crew-class-with-decorators
-
-# @CrewBase
-# class IncogenExp():
-# 	"""IncogenExp crew"""
-
-# 	# Learn more about YAML configuration files here:
-# 	# Agents: https://docs.crewai.com/concepts/agents#yaml-configuration-recommended
-# 	# Tasks: https://docs.crewai.com/concepts/tasks#yaml-configuration-recommended
-# 	agents_config = 'config/agents.yaml'
-# 	tasks_config = 'config/tasks.yaml'
-
-# 	# If you would like to add tools to your agents, you can learn more about it here:
-# 	# https://docs.crewai.com/concepts/agents#agent-tools
-# 	# @agent
-# 	# def researcher(self) -> Agent:
-# 	# 	return Agent(
-# 	# 		config=self.agents_config['researcher'],
-# 	# 		verbose=True
-# 	# 	)
-
-# 	# @agent
-# 	# def reporting_analyst(self) -> Agent:
-# 	# 	return Agent(
-# 	# 		config=self.agents_config['reporting_analyst'],
-# 	# 		verbose=True
-# 	# 	)
-	
-# 	@agent
-# 	def agent_one(self) -> Agent:
-# 		return Agent(
-# 			config=self.agents_config['agent_one'],
-# 			verbose=True
-# 		)
-
-# 	# To learn more about structured task outputs, 
-# 	# task dependencies, and task callbacks, check out the documentation:
-# 	# https://docs.crewai.com/concepts/tasks#overview-of-a-task
-# 	# @task
-# 	# def research_task(self) -> Task:
-# 	# 	return Task(
-# 	# 		config=self.tasks_config['research_task'],
-# 	# 	)
-
-# 	# @task
-# 	# def reporting_task(self) -> Task:
-# 	# 	return Task(
-# 	# 		config=self.tasks_config['reporting_task'],
-# 	# 		output_file='report.md'
-# 	# 	)
-# 	@task
-# 	def step_id_task(self) -> Task:
-# 		return Task(
-# 			config=self.tasks_config['step_id_task'],
-# 			output_file='report.md'
-# 		)
-
-# 	@crew
-# 	def crew(self) -> Crew:
-# 		"""Creates the IncogenExp crew"""
-# 		# To learn how to add knowledge sources to your crew, check out the documentation:
-# 		# https://docs.crewai.com/concepts/knowledge#what-is-knowledge
-
-# 		return Crew(
-# 			agents=self.agents, # Automatically created by the @agent decorator
-# 			tasks=self.tasks, # Automatically created by the @task decorator
-# 			process=Process.sequential,
-# 			verbose=True,
-# 			# process=Process.hierarchical, # In case you wanna use that instead https://docs.crewai.com/how-to/Hierarchical/
-# 		)
+from PIL import Image, ImageOps
 
 dalle_tool = DallETool(model="dall-e-3",
   size="1024x1024",
@@ -104,6 +32,7 @@ class IngredientsFlow1(Flow):
     self.state['input_text'] = data['input_text']
     self.state['ingredients'] = []
   
+  # (1) Extract Ingredients from input text
   @start()
   def extract_ingredients(self):        
     task_input = self.state['input_text']
@@ -144,6 +73,7 @@ class IngredientsFlow1(Flow):
 
     print('\n\nSTATE UPDATED',self.state['ingredients'])
 		
+  # (2) Generate image prompts for each ingredient
   @listen(extract_ingredients)
   def generate_prompts(self):  
   
@@ -182,6 +112,7 @@ class IngredientsFlow1(Flow):
 
     print('\n\nSTATE UPDATED',self.state['ingredients'])
 
+  # (3) Generate DallE images using the prompts
   @listen(generate_prompts)
   def generate_images(self):
 
@@ -202,6 +133,56 @@ class IngredientsFlow1(Flow):
 
     print('\n\nSTATE UPDATED',self.state['ingredients'])
 
+
+  # (4) Merge all the images into one poster
+  @listen(generate_images)
+  def merge_images(self):
+
+    rows, cols = 4, 3  # Grid layout
+    images_per_page = rows * cols  # 12 images per page
+    img_size = 1024  # Each original image is 1024x1024
+    border_size = 5
+    margin = 20  # Space between images
+
+    # Compute new size per image including borders
+    img_with_border_size = img_size + 2 * border_size
+
+    # Compute final image dimensions
+    total_width = cols * img_with_border_size + (cols + 1) * margin
+    total_height = rows * img_with_border_size + (rows + 1) * margin
+
+    ingredient_images = [value['styled_image'] for value in self.state['ingredients'].values()]
+    total_images = len(ingredient_images)
+    num_pages = (total_images + images_per_page - 1) // images_per_page  # Round up
+
+    pages = []  # List to store all generated pages
+
+    for page in range(num_pages):
+      # Create a blank image for this page
+      page_image = Image.new("RGB", (total_width, total_height), "white")
+
+      # Get the images for this page
+      start_idx = page * images_per_page
+      end_idx = min(start_idx + images_per_page, total_images)
+      current_batch = ingredient_images[start_idx:end_idx]
+
+      for idx, img in enumerate(current_batch):
+        row, col = divmod(idx, cols)
+
+        # Add black border
+        img_with_border = ImageOps.expand(img, border=border_size, fill="black")
+
+        # Compute position including margin
+        x_offset = margin + col * (img_with_border_size + margin)
+        y_offset = margin + row * (img_with_border_size + margin)
+
+        # Paste into the current page
+        page_image.paste(img_with_border, (x_offset, y_offset))
+
+      page_image.show()
+      pages.append(page_image)  # Store this page
+
+    # return pages
 
     
 		
