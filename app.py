@@ -1,6 +1,8 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from src.incogen_exp.main import run
+from src.incogen_exp.helpers import image_to_base64
+import PIL
 
 app = Flask(__name__)
 CORS(app)  # Enable CORS if needed for frontend access
@@ -13,16 +15,19 @@ def run_crew():
         input_text = data.get("input_text", "")
 
         if not input_text:
-            return jsonify({"error": "Missing input_text param"}), 400
+            return jsonify({"message": "Missing input_text param"}), 400
         
         crewai_response = run(input_text=input_text)
         
         if crewai_response == "LIMIT_EXCEEDED":
-            return jsonify({"error": "Ingredient Limit exceeded"}), 400
+            return jsonify({"message": "Ingredient Limit exceeded"}), 400
+        elif isinstance(crewai_response, list) and all(isinstance(item, PIL.Image.Image) for item in crewai_response):
+            poster = [image_to_base64(page) for page in crewai_response]
+            return jsonify({"message": "API SUCCESS","res":poster})
 
-        return jsonify({"result": "API SUCCESS","crewai_response":crewai_response})
+        return jsonify({"message": "API SUCCESS","res":"Unknown response"})
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        return jsonify({"message":"Some internal error occured!","error": str(e)}), 500
 
 if __name__ == '__main__':
     app.run(debug=True)

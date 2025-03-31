@@ -1,7 +1,9 @@
 from PIL import Image, ImageDraw, ImageFont
 import requests
 from io import BytesIO
-import re
+import io
+import base64
+
 
 def capitalize_first_letter(string):
   for i, char in enumerate(string):
@@ -86,3 +88,10 @@ def add_image_details(image_url,name,quantity):
   draw.line([0, height - text2_bg_height, width, height - text2_bg_height], fill=border_color, width=3)
 
   return new_image
+
+def image_to_base64(image):
+  """Converts a PIL Image to a base64 string."""
+  buffered = io.BytesIO()
+  image.save(buffered, format="JPEG")  
+  img_str = base64.b64encode(buffered.getvalue()).decode('utf-8')
+  return img_str

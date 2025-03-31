@@ -202,7 +202,7 @@ class IngredientsFlow1(Flow):
       page_image.show()
       pages.append(page_image)  # Store this page
 
-    # return pages
+    return pages
 
     
 		
