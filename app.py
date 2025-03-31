@@ -16,6 +16,9 @@ def run_crew():
             return jsonify({"error": "Missing input_text param"}), 400
         
         crewai_response = run(input_text=input_text)
+        
+        if crewai_response == "LIMIT_EXCEEDED":
+            return jsonify({"error": "Ingredient Limit exceeded"}), 400
 
         return jsonify({"result": "API SUCCESS","crewai_response":crewai_response})
     except Exception as e:

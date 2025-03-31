@@ -1,6 +1,5 @@
 from crewai import Agent, Crew, Process, Task
-from crewai.project import CrewBase, agent, crew, task
-from crewai.flow.flow import Flow, start, listen, and_, or_
+from crewai.flow.flow import Flow, start, listen, router
 from pydantic import BaseModel,Field
 from typing import List 
 from crewai_tools import DallETool
@@ -8,6 +7,9 @@ import json
 from openai import OpenAI
 from incogen_exp.helpers import add_image_details
 from PIL import Image, ImageOps
+
+# This variable cotrols the limit of ingredients. To ensure that the Image Generation API is not abused
+INGREDIENTS_LIMIT = 24
 
 dalle_tool = DallETool(model="dall-e-3",
   size="1024x1024",
@@ -72,9 +74,23 @@ class IngredientsFlow1(Flow):
     self.state['ingredients'] = ingredients
 
     print('\n\nSTATE UPDATED',self.state['ingredients'])
+
+  # (1b) Check Ingredients LIMIT
+  @router(extract_ingredients)
+  def ingredient_limit_check(self):
+      
+    # Handle Ingredients LIMIT CHECK
+    if len(self.state['ingredients']) > 24:
+      return "FAIL"
+    else:
+      return "PASS"
+      
+  @listen("FAIL")
+  def exit_flow(self):
+    return "LIMIT_EXCEEDED"
 		
   # (2) Generate image prompts for each ingredient
-  @listen(extract_ingredients)
+  @listen("PASS")
   def generate_prompts(self):  
   
     prompt_generation_agent = Agent(
@@ -117,15 +133,19 @@ class IngredientsFlow1(Flow):
   def generate_images(self):
 
     client = OpenAI()
+    idx = 1
 
     for key, value in self.state['ingredients'].items():
       response = client.images.generate(
-        model="dall-e-3",
+        model="dall-e-2",
         prompt=value['prompt'],
         n=1,
         size="1024x1024"
       )
       self.state['ingredients'][key]['dalle_image_url'] = response.data[0].url
+
+      print(f'\n\nIngredient image generated ({idx})\n',response.data[0].url)
+      idx+=1
 
       # Styled image will have name and quantity written over it
       styled_image = add_image_details(response.data[0].url,key,value['quantity'])
