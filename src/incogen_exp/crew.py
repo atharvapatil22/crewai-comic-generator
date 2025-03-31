@@ -6,6 +6,7 @@ from typing import List
 from crewai_tools import DallETool
 import json
 from openai import OpenAI
+from incogen_exp.helpers import add_image_details
 
 # If you want to run a snippet of code before or after the crew starts, 
 # you can use the @before_kickoff and @after_kickoff decorators
@@ -156,7 +157,7 @@ class IngredientsFlow1(Flow):
     prompt_generation_task = Task(
       description=f'''You are given an ingredient name: {'{name}'}. 
       Generate a prompt  which can be used by a text to image model to generate an image for the ingredient. The prompt should be in less than 50 words.
-      You are also given the {'{quantity}'} of the ingredient. If it is feasable, you may incorporate this in the prompt.
+      You are also given the quantity ({'{quantity}'}) of the ingredient. If it is feasable, you may incorporate this in the prompt.
       The prompt should be about the ingredient with a blank or simple background''',
       agent=prompt_generation_agent,
       expected_output="A prompt for the image generation model. And the {'{name}'} of the ingredient for which prompt was generated",
@@ -182,16 +183,9 @@ class IngredientsFlow1(Flow):
     print('\n\nSTATE UPDATED',self.state['ingredients'])
 
   @listen(generate_prompts)
-  def call_dalle(self):
+  def generate_images(self):
 
     client = OpenAI()
-
-    # client.images.generate(
-    #   model="dall-e-3",
-    #   prompt="A cute baby sea otter",
-    #   n=1,
-    #   size="1024x1024"
-    # )
 
     for key, value in self.state['ingredients'].items():
       response = client.images.generate(
@@ -200,8 +194,12 @@ class IngredientsFlow1(Flow):
         n=1,
         size="1024x1024"
       )
-      self.state['ingredients'][key]['image_url'] = response.data[0].url
-    
+      self.state['ingredients'][key]['dalle_image_url'] = response.data[0].url
+
+      # Styled image will have name and quantity written over it
+      styled_image = add_image_details(response.data[0].url,key,value['quantity'])
+      self.state['ingredients'][key]['styled_image'] = styled_image
+
     print('\n\nSTATE UPDATED',self.state['ingredients'])
 
 
