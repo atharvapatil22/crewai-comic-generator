@@ -13,22 +13,20 @@ warnings.filterwarnings("ignore", category=SyntaxWarning, module="pysbd")
 # Replace with inputs you want to test with, it will automatically
 # interpolate any tasks and agents information
 
-def run():
+def run(input_text):
     """
     Run the crew.
     """
     data = {
-        "input_text": '''250g pasta (spaghetti or fettuccine)
-2 boneless, skinless chicken breasts (sliced)
-3 cloves garlic (minced)
-''',
+        "input_text": input_text,
         "current_year": str(datetime.now().year)
     }
     
     try:
         ing_flow = IngredientsFlow1(data=data)
         # ing_flow.plot()  # for visualize the flow
-        ing_flow.kickoff()
+        flow_output = ing_flow.kickoff()
+        return flow_output
     except Exception as e:
         raise Exception(f"An error occurred while running the crew: {e}")
 
