@@ -11,7 +11,7 @@ from PIL import Image, ImageOps
 # This variable cotrols the limit of ingredients. To ensure that the Image Generation API is not abused
 INGREDIENTS_LIMIT = 24
 
-dalle_tool = DallETool(model="dall-e-3",
+dalle_tool = DallETool(model="dall-e-2",
   size="1024x1024",
   quality="standard",
   n=1)
