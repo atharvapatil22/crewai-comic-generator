@@ -4,7 +4,8 @@ import warnings
 
 from datetime import datetime
 
-from incogen_exp.crew import IngredientsFlow1
+# from incogen_exp.crew import IngredientsFlow1
+from src.incogen_exp.crew import IngredientsFlow1
 
 warnings.filterwarnings("ignore", category=SyntaxWarning, module="pysbd")
 

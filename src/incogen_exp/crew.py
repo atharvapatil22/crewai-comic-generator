@@ -199,7 +199,7 @@ class IngredientsFlow1(Flow):
         # Paste into the current page
         page_image.paste(img_with_border, (x_offset, y_offset))
 
-      page_image.show()
+      # page_image.show()
       pages.append(page_image)  # Store this page
 
     return pages
