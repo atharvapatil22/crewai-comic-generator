@@ -3,6 +3,7 @@ from flask_cors import CORS
 from src.incogen_exp.main import run
 from src.incogen_exp.helpers import image_to_base64
 import PIL
+import os
 
 app = Flask(__name__)
 CORS(app)  # Enable CORS if needed for frontend access
@@ -34,4 +35,10 @@ def run_crew():
         return jsonify({"message":"Some internal error occured!","error": str(e)}), 500
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    port = int(os.environ.get("PORT", 5000))  # 5000 as fallback for local dev
+
+    # LOCAL:
+    # app.run(debug=True)
+
+    # PRODUCTION: 
+    app.run(host="0.0.0.0", port=port)

@@ -1,0 +1,9 @@
+services:
+  - type: web
+    name: comic-gen-api
+    env: python
+    buildCommand: ""
+    startCommand: gunicorn app:app
+    envVars:
+      - key: MODEL
+        value: gpt-4o-mini
