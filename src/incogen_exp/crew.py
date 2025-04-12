@@ -140,7 +140,7 @@ class IngredientsFlow1(Flow):
         model="dall-e-2",
         prompt=value['prompt'],
         n=1,
-        size="1024x1024"
+        size="512x512"
       )
       self.state['ingredients'][key]['dalle_image_url'] = response.data[0].url
 
