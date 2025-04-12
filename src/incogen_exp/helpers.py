@@ -3,6 +3,7 @@ import requests
 from io import BytesIO
 import io
 import base64
+import os
 
 
 def capitalize_first_letter(string):
@@ -12,6 +13,14 @@ def capitalize_first_letter(string):
       string = string[:i] + char.upper() + string[i + 1:]
       break
   return string
+
+# Function will dynamically set font for dev and prod environments
+def get_font(size=40):
+  flask_env = os.environ.get("FLASK_ENV", "production")
+  if flask_env == "development":
+    return ImageFont.truetype("comic.ttf", size=size)  
+  else:
+    return ImageFont.truetype("DejaVuSans-Bold.ttf" , size=size)
 
 def add_image_details(image_url,name,quantity):
   """Function to modify Ingredient Image to add name and quantity"""
@@ -33,7 +42,7 @@ def add_image_details(image_url,name,quantity):
   border_color = (0, 0, 0)  # Black border color
 
   # Load font 
-  font = ImageFont.truetype("comic.ttf", size=40)  
+  font = get_font(size=40) 
   draw = ImageDraw.Draw(img)
 
   # Get the size of the text using textbbox (bounding box)
