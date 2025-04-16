@@ -1,6 +1,6 @@
 from crewai import Agent, Crew, Process, Task
 from crewai.flow.flow import Flow, start, listen, router
-from pydantic import BaseModel,Field
+from pydantic import BaseModel,Field,ValidationError
 from typing import List 
 from crewai_tools import DallETool
 import json
@@ -15,26 +15,54 @@ dalle_tool = DallETool(model="dall-e-2",
   size="1024x1024",
   quality="standard",
   n=1)
-class IngredientData(BaseModel):
-	name: str 
-	quantity: str
 
-# Define a class for a list of story scenes
-class IngredientDataList(BaseModel):
-	ingedient_details: List[IngredientData]
-    
+
+class RecipeData(BaseModel):
+  name: str
+  ingredients: List[str]
+  instructions: List[str]
+
+# Internal State of this flow will use these models
+class ImageObject(BaseModel):
+  prompt: str
+  url: str
+  formatted_image: str
+class ImagesData(BaseModel):
+    cover_page: ImageObject
+    ingredient_images: List[ImageObject]
+    instruction_images: List[ImageObject]
+
 class IngredientImagePrompt(BaseModel):
   name: str 
   prompt: str = Field(description = "A prompt for text to image models that can be used to generate an image.")
 	
     
 class ComicGenFlow(Flow):
-  def __init__(self, data):
+  def __init__(self, flow_input):
     super().__init__()
-    self.state['input_text'] = data['input_text']
-    self.state['ingredients'] = []
+
+    # Validate that flow input against RecipeData model
+    try:
+      self.state['recipe_data'] = RecipeData(**flow_input['recipe_data'])
+    except ValidationError as e:
+      raise ValueError(f"Invalid input for recipe_data: {e}")
+
+    # Initialize with instance of ImagesData model
+    self.state['images_data'] = ImagesData(
+      cover_page=ImageObject(prompt="", url="", formatted_image=""),
+      ingredient_images=[],
+      instruction_images=[]
+    )
   
   # THE COMMENTED PART WILL BE TAKEN OVER BY PREPROCESSING FLOW
+
+  # class IngredientData(BaseModel):
+  # 	name: str 
+  # 	quantity: str
+
+  # # Define a class for a list of story scenes
+  # class IngredientDataList(BaseModel):
+  # 	ingedient_details: List[IngredientData]
 
   # (1) Extract Ingredients from input text
   # @start()
