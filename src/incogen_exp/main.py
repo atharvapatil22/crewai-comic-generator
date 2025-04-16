@@ -4,8 +4,8 @@ import warnings
 
 from datetime import datetime
 
-# from incogen_exp.crew import IngredientsFlow1
-from src.incogen_exp.crew import IngredientsFlow1
+# from incogen_exp.crew import ComicGenFlow
+from src.incogen_exp.crew import ComicGenFlow
 
 warnings.filterwarnings("ignore", category=SyntaxWarning, module="pysbd")
 
@@ -24,7 +24,7 @@ def run(input_text):
     }
     
     try:
-        ing_flow = IngredientsFlow1(data=data)
+        ing_flow = ComicGenFlow(data=data)
         # ing_flow.plot()  # for visualize the flow
         flow_output = ing_flow.kickoff()
         return flow_output

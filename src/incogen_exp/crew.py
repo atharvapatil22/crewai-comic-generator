@@ -28,69 +28,71 @@ class IngredientImagePrompt(BaseModel):
   prompt: str = Field(description = "A prompt for text to image models that can be used to generate an image.")
 	
     
-class IngredientsFlow1(Flow):
+class ComicGenFlow(Flow):
   def __init__(self, data):
     super().__init__()
     self.state['input_text'] = data['input_text']
     self.state['ingredients'] = []
   
+  # THE COMMENTED PART WILL BE TAKEN OVER BY PREPROCESSING FLOW
+
   # (1) Extract Ingredients from input text
-  @start()
-  def extract_ingredients(self):        
-    task_input = self.state['input_text']
+  # @start()
+  # def extract_ingredients(self):        
+  #   task_input = self.state['input_text']
     
-    ingredient_extractor_agent = Agent(
-      role="Ingredient Extractor",
-      goal="Identify and extract ingredients along with their quantities from the given input text.",
-      backstory='''You are a text-processing expert specializing in extracting structured data from unstructured text.
-      Given a recipe ingredient list, you identify each ingredient and its associated quantity with high accuracy.''',
-      verbose=True
-    )
+  #   ingredient_extractor_agent = Agent(
+  #     role="Ingredient Extractor",
+  #     goal="Identify and extract ingredients along with their quantities from the given input text.",
+  #     backstory='''You are a text-processing expert specializing in extracting structured data from unstructured text.
+  #     Given a recipe ingredient list, you identify each ingredient and its associated quantity with high accuracy.''',
+  #     verbose=True
+  #   )
     
-    igredient_extraction_task = Task(
-      description=f'''Analyze the given input text containing a list of ingredients.
-      INPUT TEXT: {task_input}
-      Your job is to extract each ingredient along with its quantity. Ensure that all ingredients
-      are correctly identified and formatted in a structured manner.''',
-      agent=ingredient_extractor_agent,
-      expected_output="A structured list of ingredients with quantities",  
-      output_file="ingredients.json",  
-      output_pydantic=IngredientDataList
-    )
+  #   igredient_extraction_task = Task(
+  #     description=f'''Analyze the given input text containing a list of ingredients.
+  #     INPUT TEXT: {task_input}
+  #     Your job is to extract each ingredient along with its quantity. Ensure that all ingredients
+  #     are correctly identified and formatted in a structured manner.''',
+  #     agent=ingredient_extractor_agent,
+  #     expected_output="A structured list of ingredients with quantities",  
+  #     output_file="ingredients.json",  
+  #     output_pydantic=IngredientDataList
+  #   )
     
-    crew = Crew(
-      agents=[ingredient_extractor_agent],
-      tasks=[igredient_extraction_task],
-      verbose=True,
-      process=Process.sequential
-    )
+  #   crew = Crew(
+  #     agents=[ingredient_extractor_agent],
+  #     tasks=[igredient_extraction_task],
+  #     verbose=True,
+  #     process=Process.sequential
+  #   )
     
-    result = crew.kickoff()
-    parsed = result.to_dict()['ingedient_details']
+  #   result = crew.kickoff()
+  #   parsed = result.to_dict()['ingedient_details']
 	
-    ingredients = {}
-    for obj in parsed:
-      ingredients[obj['name']] = {'quantity': obj['quantity']}
-    self.state['ingredients'] = ingredients
+  #   ingredients = {}
+  #   for obj in parsed:
+  #     ingredients[obj['name']] = {'quantity': obj['quantity']}
+  #   self.state['ingredients'] = ingredients
 
-    print('\n\nSTATE UPDATED',self.state['ingredients'])
+  #   print('\n\nSTATE UPDATED',self.state['ingredients'])
 
-  # (1b) Check Ingredients LIMIT
-  @router(extract_ingredients)
-  def ingredient_limit_check(self):
+  # # (1b) Check Ingredients LIMIT
+  # @router(extract_ingredients)
+  # def ingredient_limit_check(self):
       
-    # Handle Ingredients LIMIT CHECK
-    if len(self.state['ingredients']) > 24:
-      return "FAIL"
-    else:
-      return "PASS"
+  #   # Handle Ingredients LIMIT CHECK
+  #   if len(self.state['ingredients']) > 24:
+  #     return "FAIL"
+  #   else:
+  #     return "PASS"
       
-  @listen("FAIL")
-  def exit_flow(self):
-    return "LIMIT_EXCEEDED"
+  # @listen("FAIL")
+  # def exit_flow(self):
+  #   return "LIMIT_EXCEEDED"
 		
-  # (2) Generate image prompts for each ingredient
-  @listen("PASS")
+  # (1) Generate image prompts for (i)Cover page, (ii) List of ingredients and (iii) List of instructions
+  @start
   def generate_prompts(self):  
   
     prompt_generation_agent = Agent(
@@ -128,7 +130,7 @@ class IngredientsFlow1(Flow):
 
     print('\n\nSTATE UPDATED',self.state['ingredients'])
 
-  # (3) Generate DallE images using the prompts
+  # (2) Generate DallE images using all the prompts
   @listen(generate_prompts)
   def generate_images(self):
 
@@ -154,7 +156,7 @@ class IngredientsFlow1(Flow):
     print('\n\nSTATE UPDATED',self.state['ingredients'])
 
 
-  # (4) Merge all the images into one poster
+  # (3) Merge all the images to create comic pages
   @listen(generate_images)
   def merge_images(self):
 
