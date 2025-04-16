@@ -137,7 +137,7 @@ class IngredientsFlow1(Flow):
 
     for key, value in self.state['ingredients'].items():
       response = client.images.generate(
-        model="dall-e-2",
+        model="dall-e-3",
         prompt=value['prompt'],
         n=1,
         size="1024x1024"
