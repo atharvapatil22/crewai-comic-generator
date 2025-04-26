@@ -14,7 +14,7 @@ def test_connection():
     return jsonify({"message": "Server is up and running!"}), 200
 
 # API Route to trigger CrewAI
-@app.route('/run_crew', methods=['POST'])
+@app.route('/run-crew', methods=['POST'])
 def run_crew():
     try:
         data = request.json
