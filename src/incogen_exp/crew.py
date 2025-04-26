@@ -5,8 +5,9 @@ from typing import List
 from crewai_tools import DallETool
 import json
 from openai import OpenAI
-from incogen_exp.helpers import add_image_details
+from src.incogen_exp.helpers import add_image_details
 from PIL import Image, ImageOps
+from src.incogen_exp.comic_gen_models import RecipeData,ImagesData,ImageObject
 
 # This variable cotrols the limit of ingredients. To ensure that the Image Generation API is not abused
 INGREDIENTS_LIMIT = 24
@@ -16,21 +17,8 @@ dalle_tool = DallETool(model="dall-e-2",
   quality="standard",
   n=1)
 
-
-class RecipeData(BaseModel):
-  name: str
-  ingredients: List[str]
-  instructions: List[str]
-
 # Internal State of this flow will use these models
-class ImageObject(BaseModel):
-  prompt: str
-  url: str
-  formatted_image: str
-class ImagesData(BaseModel):
-    cover_page: ImageObject
-    ingredient_images: List[ImageObject]
-    instruction_images: List[ImageObject]
+
 
 class IngredientImagePrompt(BaseModel):
   name: str 
@@ -43,13 +31,13 @@ class ComicGenFlow(Flow):
 
     # Validate that flow input against RecipeData model
     try:
-      self.state['recipe_data'] = RecipeData(**flow_input['recipe_data'])
+      self.state['recipe_data'] = RecipeData(**flow_input['cleaned_recipe_data'])
     except ValidationError as e:
-      raise ValueError(f"Invalid input for recipe_data: {e}")
+      raise ValueError(f"Invalid input recieved by ComicGenFlow. Invalid recipe_data: {e}")
 
     # Initialize with instance of ImagesData model
     self.state['images_data'] = ImagesData(
-      cover_page=ImageObject(prompt="", url="", formatted_image=""),
+      cover_page=ImageObject(prompt="", url="", styled_image=""),
       ingredient_images=[],
       instruction_images=[]
     )

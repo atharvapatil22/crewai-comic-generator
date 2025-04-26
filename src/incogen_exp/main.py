@@ -22,12 +22,22 @@ def run(input_text):
         "input_text": input_text,
         "current_year": str(datetime.now().year)
     }
-    
+
+    mock_flow_input = {
+        "cleaned_recipe_data" : {
+            "name": "Salted Onion",
+            "ingredients": [{"name":"onion","quantity":"2 diced"}, {"name":"salt","quantity":"1 tbsp"}],
+            "instructions" : ["step1","step2"]
+        }
+    }
+
     try:
-        ing_flow = ComicGenFlow(data=data)
-        # ing_flow.plot()  # for visualize the flow
-        flow_output = ing_flow.kickoff()
+        comic_gen_flow = ComicGenFlow(flow_input=mock_flow_input)
+        # comic_gen_flow.plot()  # for visualize the flow
+        flow_output = comic_gen_flow.kickoff()
         return flow_output
+    
+
     except Exception as e:
         raise Exception(f"An error occurred while running the crew: {e}")
 
